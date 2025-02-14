@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            text-align: center; 
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .quiz-container { 
+            width: 60%; 
+            margin: auto; 
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 1;
+            position: relative;
+            display: none;
+        }
+        .hidden {
+            opacity: 0;
+        }
+        .quiz-container:hover {
+            transform: scale(1.03);
+        }
+        h1 {
+            font-size: 30px;
+            font-weight: 600;
+        }
+        .question { 
+            font-size: 22px; 
+            margin: 20px 0; 
+            font-weight: 600;
+        }
+        .options button {
+            display: block;
+            width: 85%;
+            padding: 12px;
+            margin: 12px auto;
+            font-size: 18px;
+            border-radius: 10px;
+            border: none;
+            background-color: #1e3a8a;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .options button:hover {
+            background-color: #162b69;
+            transform: scale(1.05);
+        }
+        .correct {
+            background-color: #28a745 !important;
+        }
+        .wrong {
+            background-color: #dc3545 !important;
+        }
+        #result { 
+            font-size: 24px; 
+            margin-top: 20px; 
+            font-weight: 600;
+        }
+        #timer {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .start-btn {
+            font-size: 22px;
+            padding: 12px 25px;
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 50px;
+            transition: 0.3s;
+        }
+        .start-btn:hover {
+            background-color: #c0392b;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+    <div class="quiz-container" id="quiz-container">
+        <h1>Interactive Quiz</h1>
+        <div id="timer">Time Left: 10s</div>
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="result"></div>
+    </div>
+    <script>
+        const quizData = [
+            { question: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], answer: "Paris" },
+            { question: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Venus"], answer: "Mars" },
+            { question: "Who developed the theory of relativity?", options: ["Isaac Newton", "Albert Einstein", "Nikola Tesla", "Galileo Galilei"], answer: "Albert Einstein" },
+            { question: "What is the speed of light?", options: ["150000 km/s", "300000 km/s", "299792458 m/s", "250000 km/s"], answer: "299792458 m/s" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 10;
+        let timer;
+
+        function startQuiz() {
+            document.querySelector(".start-btn").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 10;
+            document.getElementById("timer").innerText = `Time Left: ${timeLeft}s`;
+            timer = setInterval(updateTimer, 1000);
+            
+            let questionData = quizData[currentQuestionIndex];
+            document.getElementById("question").innerText = questionData.question;
+            
+            let optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            
+            questionData.options.forEach(option => {
+                let button = document.createElement("button");
+                button.innerText = option;
+                button.onclick = () => submitAnswer(button, option);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById("timer").innerText = `Time Left: ${timeLeft}s`;
+            if (timeLeft === 0) {
+                clearInterval(timer);
+                submitAnswer(null, null);
+            }
+        }
+
+        function submitAnswer(button, selectedOption) {
+            clearInterval(timer);
+            let correctAnswer = quizData[currentQuestionIndex].answer;
+            if (selectedOption === correctAnswer) {
+                score += 2;
+                document.getElementById("result").innerText = "Correct! 🎉";
+                button.classList.add("correct");
+            } else {
+                score -= 1;
+                document.getElementById("result").innerText = `Wrong! The correct answer is ${correctAnswer}`;
+                if (button) button.classList.add("wrong");
+            }
+            
+            currentQuestionIndex++;
+            setTimeout(() => {
+                if (currentQuestionIndex < quizData.length) {
+                    loadQuestion();
+                } else {
+                    document.getElementById("quiz-container").innerHTML = `<h1>Quiz Completed!</h1><p>Your final score: ${score}</p>`;
+                }
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
